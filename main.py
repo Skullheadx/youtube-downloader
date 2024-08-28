@@ -1,4 +1,4 @@
-from pytube import YouTube
+from pytubefix import YouTube
 import ffmpeg
 
 
@@ -18,6 +18,8 @@ if __name__ == "__main__":
 
     # download links one by one
     for link in links:
+        target_res = 0
+        target_abr = 0
         success = True
         yt = YouTube(link)
         video_streams = []
