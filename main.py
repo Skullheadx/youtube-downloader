@@ -1,4 +1,4 @@
-from pytubefix import YouTube
+from pytubefix import YouTube, Playlist
 import ffmpeg
 
 
@@ -15,6 +15,14 @@ if __name__ == "__main__":
         links = f.read().split('\n')
         if links[-1] == "":
             links = links[:-1]
+
+    for link in links:
+        if "playlist" in link:
+            p = Playlist(link)
+            for url in p.video_urls:
+                links.append(url)
+            links.remove(link)
+
 
     # download links one by one
     for link in links:
