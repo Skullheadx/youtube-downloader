@@ -10,3 +10,6 @@
 examples.txt
 downloaded/
 links.txt
+/.venv
+.DS_Store
+links.txt
