@@ -16,3 +16,4 @@ links.txt
 *.egg-info
 *.pyc
 
+ytdl.egg-info/dependency_links.txt
