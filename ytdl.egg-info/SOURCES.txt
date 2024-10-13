@@ -1,0 +1,13 @@
+LICENSE
+README.md
+setup.py
+ytdl/__init__.py
+ytdl/__main__.py
+ytdl/classmodule.py
+ytdl/funcmodule.py
+ytdl/main.py
+ytdl.egg-info/PKG-INFO
+ytdl.egg-info/SOURCES.txt
+ytdl.egg-info/dependency_links.txt
+ytdl.egg-info/entry_points.txt
+ytdl.egg-info/top_level.txt
