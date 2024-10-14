@@ -28,3 +28,4 @@ ytdl/__pycache__/classmodule.cpython-312.pyc
 ytdl/__pycache__/funcmodule.cpython-312.pyc
 /ytdl.egg-info
 /ytdl/__pycache__
+*.mp4
