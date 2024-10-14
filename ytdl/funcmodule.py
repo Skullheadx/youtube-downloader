@@ -14,25 +14,16 @@ def check_playlist(links):
     return links
 
 
-def links_work(links):
-    for link in links:
-        YouTube(link).check_availability()
-    return True
-
-
-def get_audio_streams(links):
+def get_audio_metadata_streams(links):
     audio_streams = []
+    metadata = []
+
     for link in links:
         yt = YouTube(link)
+        yt.check_availability()
+        print(f"Fetching stream for {yt.title}")
         assert len(yt.streams.filter(only_audio=True)) > 0, "No available audio streams"
         audio_streams.append(yt.streams.filter(only_audio=True).order_by("abr").last())
-    return audio_streams
-
-
-def get_metadata(links):
-    metadata = []
-    for link in links:
-        yt = YouTube(link)
         metadata.append(
             {
                 "title": yt.title,
@@ -42,8 +33,7 @@ def get_metadata(links):
                 "views": yt.views
             }
         )
-    return metadata
-
+    return audio_streams, metadata
 
 def big_num_format(num):  # https://stackoverflow.com/a/579376
     magnitude = 0
@@ -55,6 +45,7 @@ def big_num_format(num):  # https://stackoverflow.com/a/579376
 
 def download_audio_streams(audio_streams, metadata):
     for audio_stream, md in zip(audio_streams, metadata):
+        print(f"Downloading audio stream for {audio_stream.title}")
         audio_stream.download()
         data = requests.get(md["thumbnail_url"]).content
         f = open('thumbnail.jpg', 'wb')

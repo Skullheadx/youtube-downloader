@@ -1,6 +1,5 @@
 import sys
-from .funcmodule import check_playlist, links_work, get_audio_streams, download_audio_streams, \
-    get_metadata
+from .funcmodule import check_playlist, get_audio_metadata_streams, download_audio_streams
 
 
 
@@ -28,15 +27,9 @@ def main():
     links = check_playlist(links)
     assert len(links) > 0, "Should be at least one song in playlist"
 
-    print("Checking if links exist")
-    assert links_work(links), "Links don't work :("
-
-    print("Getting audio streams")
-    streams = get_audio_streams(links)
-    assert len(streams) > 0, "was not able to get audio streams"
-
-    print("Getting video metadata")
-    metadata = get_metadata(links)
+    print("Getting audio streams and metadata")
+    streams, metadata = get_audio_metadata_streams(links)
+    assert len(streams) > 0, "was not able to get audio streams / metadata"
     assert len(metadata) == len(streams), "make sure metadata for every stream"
 
     if arg == "-d":
