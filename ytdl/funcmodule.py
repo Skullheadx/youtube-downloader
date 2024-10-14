@@ -48,7 +48,7 @@ def download(link, mode, force=False):
     download_thumbnail(yt.thumbnail_url, thumbnail_filename)
 
     if mode == '-a' or mode == '-v':
-        download_single_stream(yt, filename,thumbnail_filename, mode)
+        download_single_stream(yt, filename, thumbnail_filename, mode)
     elif mode == '-av' or mode == '-d':
         download_double_stream(yt, filename, thumbnail_filename, mode)
 
@@ -90,7 +90,7 @@ def download_single_stream(yt, filename, thumbnail_filename, mode):
     os.remove(default_filename)
 
 
-def download_double_stream(yt, filename,thumbnail_filename, mode):
+def download_double_stream(yt, filename, thumbnail_filename, mode):
     print(f"Fetching streams for {yt.title}")
     assert len(yt.streams.filter(only_audio=True)) > 0, "No available audio streams"
     audio_stream = yt.streams.filter(only_audio=True).order_by("abr").last()
@@ -123,11 +123,39 @@ def download_double_stream(yt, filename,thumbnail_filename, mode):
             ]
             subprocess.run(command)
     elif mode == '-d':
-        pass
+        command = [
+            'ffmpeg',
+            '-i', audio_default_filename,
+            '-i', video_default_filename,
+            '-map', '0',
+            '-map', '1',
+            '-c', 'copy',
+            '-disposition:v:1', 'attached_pic',
+            '-metadata', f'title={filename}',
+            '-metadata', f'artist={yt.author}',
+            '-metadata', f'comment={big_num_format(yt.views) + " views"}',
+            '-metadata', f'date={yt.publish_date}',
+            filename + "tmp" + ".mp4",
+            '-y'
+        ]
+        subprocess.run(command)
 
+        command = [
+            'ffmpeg',
+            '-i', filename + "tmp" + ".mp4",
+            '-i', thumbnail_filename,
+            '-map', '0',
+            '-map', '1',
+            '-c', 'copy',
+            '-disposition:v:1', 'attached_pic',
+                  filename + ".mp4",
+            '-y'
+        ]
+        subprocess.run(command)
+
+        os.remove(filename + "tmp" + ".mp4")
 
     # clean up tmp files
     os.remove(thumbnail_filename)
     os.remove(audio_default_filename)
     os.remove(video_default_filename)
-
