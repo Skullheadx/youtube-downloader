@@ -1,5 +1,4 @@
 from pytubefix import YouTube, Playlist, extract
-import ffmpeg
 import requests
 import subprocess
 import os
