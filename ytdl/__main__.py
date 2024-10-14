@@ -1,6 +1,6 @@
 import sys
-from .funcmodule import check_playlist, get_audio_metadata_streams, download_audio_streams
-
+from .funcmodule import check_playlist, get_audio_metadata_stream, download_audio_stream
+import concurrent.futures
 
 
 def main():
@@ -27,19 +27,38 @@ def main():
     links = check_playlist(links)
     assert len(links) > 0, "Should be at least one song in playlist"
 
-    print("Getting audio streams and metadata")
-    streams, metadata = get_audio_metadata_streams(links)
-    assert len(streams) > 0, "was not able to get audio streams / metadata"
-    assert len(metadata) == len(streams), "make sure metadata for every stream"
+    audio_streams = []
+    metadata_list = []
 
-    if arg == "-d":
+    for link in links:
+        stream, metadata = get_audio_metadata_stream(link)
+        assert stream is not None, "was not able to get audio stream"
+        assert metadata is not None, "no metadata found"
+        audio_streams.append(stream)
+        metadata_list.append(metadata)
+
+    assert len(audio_streams) > 0, "no audio streams found"
+    assert len(metadata_list) > 0, "no metadata found"
+
+    if mode == "-d":
         pass
-    elif arg == "-a":
-        print("Downloading audio streams")
-        download_audio_streams(streams, metadata)
-    elif arg == "-v":
+    elif mode == "-a":
+        # Use ThreadPoolExecutor to run downloads concurrently
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            # Schedule the download_audio_stream function for each audio stream
+            futures = {executor.submit(download_audio_stream, stream, metadata): stream for stream, metadata in
+                       zip(audio_streams, metadata_list)}
+
+            # Optionally, you can wait for completion and handle exceptions
+            for future in concurrent.futures.as_completed(futures):
+                stream = futures[future]
+                try:
+                    future.result()  # This will raise an exception if the function raised one
+                except Exception as e:
+                    print(f"Error downloading {stream.title}: {e}")
+    elif mode == "-v":
         pass
-    elif arg == "-av":
+    elif mode == "-av":
         pass
 
 

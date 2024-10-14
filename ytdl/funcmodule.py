@@ -1,4 +1,4 @@
-from pytubefix import YouTube, Playlist, extract
+from pytubefix import YouTube, Playlist
 import requests
 import subprocess
 import os
@@ -14,26 +14,19 @@ def check_playlist(links):
     return links
 
 
-def get_audio_metadata_streams(links):
-    audio_streams = []
-    metadata = []
-
-    for link in links:
-        yt = YouTube(link)
-        yt.check_availability()
-        print(f"Fetching stream for {yt.title}")
-        assert len(yt.streams.filter(only_audio=True)) > 0, "No available audio streams"
-        audio_streams.append(yt.streams.filter(only_audio=True).order_by("abr").last())
-        metadata.append(
-            {
-                "title": yt.title,
-                "artist": yt.author,
-                "thumbnail_url": yt.thumbnail_url,
-                "publish_date": yt.publish_date,
-                "views": yt.views
-            }
-        )
-    return audio_streams, metadata
+def get_audio_metadata_stream(link):
+    yt = YouTube(link)
+    yt.check_availability()
+    print(f"Fetching stream for {yt.title}")
+    assert len(yt.streams.filter(only_audio=True)) > 0, "No available audio streams"
+    yield yt.streams.filter(only_audio=True).order_by("abr").last()
+    yield {
+            "title": yt.title,
+            "artist": yt.author,
+            "thumbnail_url": yt.thumbnail_url,
+            "publish_date": yt.publish_date,
+            "views": yt.views
+        }
 
 def big_num_format(num):  # https://stackoverflow.com/a/579376
     magnitude = 0
@@ -43,29 +36,31 @@ def big_num_format(num):  # https://stackoverflow.com/a/579376
     return '%.1f%s' % (num, ['', 'K', 'M', 'B'][magnitude])
 
 
-def download_audio_streams(audio_streams, metadata):
-    for audio_stream, md in zip(audio_streams, metadata):
-        print(f"Downloading audio stream for {audio_stream.title}")
-        audio_stream.download()
-        data = requests.get(md["thumbnail_url"]).content
-        f = open('thumbnail.jpg', 'wb')
+def download_audio_stream(audio_stream, metadata):
+    print(f"Downloading audio stream for {audio_stream.title}")
+    audio_stream.download()
+
+    # create thumbnail file
+    data = requests.get(metadata["thumbnail_url"]).content
+    thumbnail_filename = f'{audio_stream.title}.jpg'
+    with open(thumbnail_filename, 'wb') as f:
         f.write(data)
-        f.close()
 
-        command = [
-            'ffmpeg',
-            '-i', audio_stream.default_filename,
-            '-i', "thumbnail.jpg",
-            '-map', '0',
-            '-map', '1',
-            '-metadata', f'title={audio_stream.title}',
-            '-metadata', f'artist={md["artist"]}',
-            '-metadata', f'date={md["publish_date"]}',
-            '-metadata', f'comment={big_num_format(md["views"]) + " views"}',
-            audio_stream.title + ".mp4",
-            '-y'
-        ]
+    command = [
+        'ffmpeg',
+        '-i', audio_stream.default_filename,
+        '-i', thumbnail_filename,
+        '-map', '0',
+        '-map', '1',
+        '-metadata', f'title={audio_stream.title}',
+        '-metadata', f'artist={metadata["artist"]}',
+        '-metadata', f'date={metadata["publish_date"]}',
+        '-metadata', f'comment={big_num_format(metadata["views"]) + " views"}',
+        audio_stream.title + ".mp4",
+        '-y'
+    ]
+    subprocess.run(command)
 
-        subprocess.run(command)
-        os.remove("thumbnail.jpg")
-        os.remove(audio_stream.default_filename)
+    # clean up tmp files
+    os.remove(thumbnail_filename)
+    os.remove(audio_stream.default_filename)
