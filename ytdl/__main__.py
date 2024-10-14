@@ -14,7 +14,7 @@ def main():
         if arg in modes:
             mode = arg
 
-        if "youtube.com" in arg:
+        if "youtube" in arg or "youtu.be" in arg:
             links.extend(arg.split(" "))
 
     assert len(links) > 0, "Should pass at least one link as arg"
