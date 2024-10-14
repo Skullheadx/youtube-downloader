@@ -1,0 +1,2 @@
+[console_scripts]
+ytdl = ytdl.__main__:main

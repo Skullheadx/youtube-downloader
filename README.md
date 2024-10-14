@@ -1,7 +1,15 @@
-# youtube-downloader
+# Youtube Downloader - ytdl
 
-HOW TO USE
-- Enter links into the links_file.txt file each on a new line.
-  - You can even put links to playlists too!
-- Run the main.py file using python
-- Enjoy your newly downloaded videos in the "downloaded" folder. (audio and video streams are available in the respective folders in downloaded)
+## usage
+```shell
+ytdl "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+```
+downloads the audio and video and stitches it together in the current directory. Automatically detects playlists.
+
+- `-a` - audio only
+- `-v` - video only
+- `-av` - audio + video separate
+- `-f` - force replace if file exists
+
+# TODO:
+- [ ] figure out why -av takes so long compared to -a and -v
