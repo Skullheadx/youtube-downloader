@@ -2,7 +2,7 @@
 
 ## usage
 ```shell
-ytdl "https://music.youtube.com/watch?v=lYBUbBu4W08&si=z03FVSmqqyxKZFmZ"
+ytdl "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
 ```
 downloads the audio and video and stitches it together in the current directory. Automatically detects playlists.
 
@@ -10,3 +10,10 @@ downloads the audio and video and stitches it together in the current directory.
 - `-v` - video only
 - `-av` - audio + video separate
 
+
+# TODO:
+- [ ] add video only
+- [ ] add audio + video separate
+- [ ] add stitched together
+- [ ] add force replace
+- [ ] add album
