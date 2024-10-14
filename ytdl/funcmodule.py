@@ -4,6 +4,7 @@ import requests
 import subprocess
 import os
 
+
 def check_playlist(links):
     for link in links:
         if "playlist" in link:
@@ -39,11 +40,18 @@ def get_metadata(links):
                 "artist": yt.author,
                 "thumbnail_url": yt.thumbnail_url,
                 "publish_date": yt.publish_date,
-                "rating": yt.rating,
                 "views": yt.views
             }
         )
     return metadata
+
+
+def big_num_format(num):  # https://stackoverflow.com/a/579376
+    magnitude = 0
+    while abs(num) >= 1000:
+        magnitude += 1
+        num /= 1000.0
+    return '%.1f%s' % (num, ['', 'K', 'M', 'B'][magnitude])
 
 
 def download_audio_streams(audio_streams, metadata):
@@ -63,6 +71,7 @@ def download_audio_streams(audio_streams, metadata):
             '-metadata', f'title={audio_stream.title}',
             '-metadata', f'artist={md["artist"]}',
             '-metadata', f'date={md["publish_date"]}',
+            '-metadata', f'comment={big_num_format(md["views"]) + " views"}',
             "downloads/" + audio_stream.title + ".mp4",
             '-y'
         ]
@@ -71,5 +80,3 @@ def download_audio_streams(audio_streams, metadata):
         subprocess.run(command)
         os.remove("thumbnail.jpg")
         os.remove(audio_stream.default_filename)
-
-
