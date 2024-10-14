@@ -1,8 +1,9 @@
-from .__init__ import *
-from pytube import YouTube, Playlist
-from pytube.exceptions import VideoUnavailable
-import ffmpeg
+import pytubefix.extract
 
+from .__init__ import *
+from pytubefix import YouTube, Playlist, extract
+import ffmpeg
+import requests
 
 
 def check_playlist(links):
@@ -14,29 +15,60 @@ def check_playlist(links):
             links.remove(link)
     return links
 
+
 def links_work(links):
     for link in links:
         YouTube(link).check_availability()
     return True
 
 
-def download_audio(links, target_abr="160kbps"):
-    print(links, ABR)
-    print('a')
+def get_audio_streams(links):
+    audio_streams = []
     for link in links:
         yt = YouTube(link)
-        # assert yt.includes_audio_track()
-        print(yt.streams.filter(only_audio=True))
-        print(yt.streams)
+        assert len(yt.streams.filter(only_audio=True)) > 0, "No available audio streams"
+        audio_streams.append(yt.streams.filter(only_audio=True).order_by("abr").last())
+    return audio_streams
 
 
+def get_metadata(links):
+    metadata = []
+    for link in links:
+        yt = YouTube(link)
+        metadata.append(
+            {
+                "title": yt.title,
+                "author": yt.author,
+                "thumbnail_url": yt.thumbnail_url,
+                "description": yt.description,
+                "publish_date": yt.publish_date,
+                "rating": yt.rating,
+                "views": yt.views
+            }
+        )
+    return metadata
 
 
+def download_audio_streams(audio_streams, metadata):
+    for audio_stream, md in zip(audio_streams, metadata):
+        audio_stream.download()
+        data = requests.get(md["thumbnail_url"]).content
+        f = open('thumbnail.jpg', 'wb')
+        f.write(data)
+        f.close()
 
-
-
-
-
+        audio = ffmpeg.input(audio_stream.default_filename)
+        thumb = ffmpeg.input("thumbnail.jpg")
+        (
+            ffmpeg
+            .output(
+                audio, thumb,
+                audio_stream.title + ".mp4",
+                author=md["author"], year=md["publish_date"], description=md["description"]
+            )
+            .overwrite_output()
+            .run()
+        )
 
 # RES = ["1440p", "1080p", "720p", "480p", "360p", "240p", "144p"]
 # ABR = ["160kbps", "128kbps", "70kbps", "50kbps", "48kbps"]
@@ -50,7 +82,6 @@ def download_audio(links, target_abr="160kbps"):
 #     if links[-1] == "":
 #         links = links[:-1]
 # print(links)
-
 
 
 #     # download links one by one
