@@ -106,8 +106,6 @@ def download_double_stream(yt, filename,thumbnail_filename, mode):
 
     if mode == '-av':
         for suffix, stream in [(" (audio only)", audio_default_filename), (" (video only)", video_default_filename)]:
-            print(suffix, stream, "jahdnfjlkahwejklfaw")
-
             command = [
                 'ffmpeg',
                 '-i', stream,
@@ -124,6 +122,9 @@ def download_double_stream(yt, filename,thumbnail_filename, mode):
                 '-y'
             ]
             subprocess.run(command)
+    elif mode == '-d':
+        pass
+
 
     # clean up tmp files
     os.remove(thumbnail_filename)

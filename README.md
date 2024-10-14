@@ -13,7 +13,7 @@ downloads the audio and video and stitches it together in the current directory.
 
 # TODO:
 - [x] add video only
-- [ ] add audio + video separate
+- [x] add audio + video separate
 - [ ] add stitched together
 - [x] add force replace
 - [ ] add album name
