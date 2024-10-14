@@ -1,5 +1,5 @@
 import sys
-from .funcmodule import check_playlist, get_audio_metadata_stream, download_audio_stream, get_and_download
+from .funcmodule import check_playlist, get_and_download
 import concurrent.futures
 
 
@@ -26,19 +26,6 @@ def main():
     print("Checking for playlists")
     links = check_playlist(links)
     assert len(links) > 0, "Should be at least one song in playlist"
-
-    audio_streams = []
-    metadata_list = []
-
-    for link in links:
-        stream, metadata = get_audio_metadata_stream(link)
-        assert stream is not None, "was not able to get audio stream"
-        assert metadata is not None, "no metadata found"
-        audio_streams.append(stream)
-        metadata_list.append(metadata)
-
-    assert len(audio_streams) > 0, "no audio streams found"
-    assert len(metadata_list) > 0, "no metadata found"
 
     if mode == "-d":
         pass
