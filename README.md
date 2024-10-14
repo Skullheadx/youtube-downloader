@@ -12,5 +12,4 @@ downloads the audio and video and stitches it together in the current directory.
 - `-f` - force replace if file exists
 
 # TODO:
-- [ ] add album name
 - [ ] figure out why -av takes so long compared to -a and -v

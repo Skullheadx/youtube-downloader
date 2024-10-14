@@ -62,6 +62,7 @@ def download(link, mode, force=False):
 
 
 def convert_add_metadata(input1, input2, output, yt, m1=1, m2=0):
+    artist, album, title = yt.vid_info['videoDetails']['keywords']
     command = [
         'ffmpeg',
         '-i', input1,
@@ -70,10 +71,11 @@ def convert_add_metadata(input1, input2, output, yt, m1=1, m2=0):
         '-map', f'{m2}',
         '-c', 'copy',
         f'-disposition:v:{m2}', 'attached_pic',
-        '-metadata', f'title={yt.title}',
-        '-metadata', f'artist={yt.author}',
+        '-metadata', f'title={title}',
+        '-metadata', f'artist={artist}',
         '-metadata', f'comment={big_num_format(yt.views) + " views"}',
         '-metadata', f'date={yt.publish_date}',
+        '-metadata', f'album={album}',
         output + ".mp4",
         '-y'
     ]
