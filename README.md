@@ -17,4 +17,4 @@ downloads the audio and video and stitches it together in the current directory.
 - [x] add stitched together
 - [x] add force replace
 - [ ] add album name
-- [ ] add force replace check for audio and video only
+- [x] add force replace check for audio and video only

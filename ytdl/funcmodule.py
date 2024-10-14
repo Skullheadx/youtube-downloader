@@ -39,7 +39,15 @@ def download_thumbnail(thumbnail_url, thumbnail_filename):
 def download(link, mode, force=False):
     yt = YouTube(link)
     filename = fix_filename(yt.title)
-    if (filename + '.mp4' in glob.glob("*.mp4")) and not force:
+    if (
+            (
+                    (mode == '-av' and
+                     (filename + ' (audio only).mp4' in glob.glob("*.mp4") or
+                      filename + ' (video only).mp4' in glob.glob("*.mp4"))) or
+                    (mode != '-av' and filename + '.mp4' in glob.glob("*.mp4"))
+            ) and
+            (not force)
+    ):
         print(f"{yt.title} is already downloaded")
         return
     yt.check_availability()
