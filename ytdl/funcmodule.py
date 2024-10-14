@@ -32,46 +32,42 @@ def fix_filename(filename):
 
 def get_and_download(link):
     yt = YouTube(link)
-    # if fix_filename(yt.title) + '.mp4' in glob.glob("*.mp4"):
-    #     print(f"{yt.title} is already downloaded")
-    #     return
+    if fix_filename(yt.title) + '.mp4' in glob.glob("*.mp4"):
+        print(f"{yt.title} is already downloaded")
+        return
 
-    # yt.check_availability()
-    # print(f"Fetching stream for {yt.title}")
-    #
-    # assert len(yt.streams.filter(only_audio=True)) > 0, "No available audio streams"
-    # audio_stream = yt.streams.filter(only_audio=True).order_by("abr").last()
+    yt.check_availability()
+    print(f"Fetching stream for {yt.title}")
 
+    assert len(yt.streams.filter(only_audio=True)) > 0, "No available audio streams"
+    audio_stream = yt.streams.filter(only_audio=True).order_by("abr").last()
 
-    # hierarchy:
-    caption_hierarchy = ["ko", "ja", "zh", "en", "a.ko", "a.en"]
-    if len(yt.captions) > 0:
-        for caption in yt.captions:
-            print(yt.title, caption.lang_code)
-    # print(f"Downloading audio stream for {yt.title}")
-    # audio_stream.download(filename=fix_filename(audio_stream.default_filename), skip_existing=True)
-    #
-    # # create thumbnail file
-    # data = requests.get(yt.thumbnail_url).content
-    # thumbnail_filename = f'{fix_filename(audio_stream.title)}.jpg'
-    # with open(thumbnail_filename, 'wb') as f:
-    #     f.write(data)
-    #
-    # command = [
-    #     'ffmpeg',
-    #     '-i', fix_filename(audio_stream.default_filename),
-    #     '-i', thumbnail_filename,
-    #     '-map', '0',
-    #     '-map', '1',
-    #     '-metadata', f'title={fix_filename(audio_stream.title)}',
-    #     '-metadata', f'artist={yt.author}',
-    #     '-metadata', f'date={yt.publish_date}',
-    #     '-metadata', f'comment={big_num_format(yt.views) + " views"}',
-    #     fix_filename(audio_stream.title) + ".mp4",
-    #     '-y'
-    # ]
-    # subprocess.run(command)
-    #
-    # # clean up tmp files
-    # os.remove(thumbnail_filename)
-    # os.remove(fix_filename(audio_stream.default_filename))
+    print(f"Downloading audio stream for {yt.title}")
+    audio_stream.download(filename=fix_filename(audio_stream.default_filename), skip_existing=True)
+
+    # create thumbnail file
+    data = requests.get(yt.thumbnail_url).content
+    thumbnail_filename = f'{fix_filename(audio_stream.title)}.jpg'
+    with open(thumbnail_filename, 'wb') as f:
+        f.write(data)
+
+    command = [
+        'ffmpeg',
+        '-i', fix_filename(audio_stream.default_filename),
+        '-i', thumbnail_filename,
+        '-map', '1',
+        '-map', '0',
+        '-c', 'copy',
+        '-disposition:v:0', 'attached_pic',
+        '-metadata', f'title={fix_filename(yt.title)}',
+        '-metadata', f'artist={yt.author}',
+        '-metadata', f'comment={big_num_format(yt.views) + " views"}',
+        '-metadata', f'date={yt.publish_date}',
+        fix_filename(audio_stream.title) + ".mp4",
+        '-y'
+    ]
+    subprocess.run(command)
+
+    # clean up tmp files
+    os.remove(thumbnail_filename)
+    os.remove(fix_filename(audio_stream.default_filename))
