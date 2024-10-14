@@ -1,4 +1,4 @@
-# Youtube Downloader - ytdl
+# Youtube Downloader CLI - ytdl
 
 ## Usage
 ```shell
