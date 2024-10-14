@@ -1,5 +1,5 @@
 import sys
-from .funcmodule import check_playlist, get_and_download
+from .funcmodule import check_playlist, download
 import concurrent.futures
 
 
@@ -32,7 +32,7 @@ def main():
     # Use ThreadPoolExecutor to run downloads concurrently
     with concurrent.futures.ThreadPoolExecutor() as executor:
         # Schedule the download_audio_stream function for each audio stream
-        futures = {executor.submit(get_and_download, link, mode, force): link for link in links}
+        futures = {executor.submit(download, link, mode, force): link for link in links}
 
 
 if __name__ == '__main__':
