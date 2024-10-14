@@ -71,11 +71,10 @@ def download_audio_streams(audio_streams, metadata):
             '-metadata', f'artist={md["artist"]}',
             '-metadata', f'date={md["publish_date"]}',
             '-metadata', f'comment={big_num_format(md["views"]) + " views"}',
-            "downloads/" + audio_stream.title + ".mp4",
+            audio_stream.title + ".mp4",
             '-y'
         ]
-        if "downloads" not in [i.name for i in os.scandir()]:
-            os.mkdir("downloads")
+
         subprocess.run(command)
         os.remove("thumbnail.jpg")
         os.remove(audio_stream.default_filename)
