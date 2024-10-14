@@ -12,9 +12,5 @@ downloads the audio and video and stitches it together in the current directory.
 - `-f` - force replace if file exists
 
 # TODO:
-- [x] add video only
-- [x] add audio + video separate
-- [x] add stitched together
-- [x] add force replace
 - [ ] add album name
-- [x] add force replace check for audio and video only
+- [ ] figure out why -av takes so long compared to -a and -v

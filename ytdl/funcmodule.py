@@ -61,6 +61,25 @@ def download(link, mode, force=False):
         download_double_stream(yt, filename, thumbnail_filename, mode)
 
 
+def convert_add_metadata(input1, input2, output, yt, m1=1, m2=0):
+    command = [
+        'ffmpeg',
+        '-i', input1,
+        '-i', input2,
+        '-map', f'{m1}',
+        '-map', f'{m2}',
+        '-c', 'copy',
+        f'-disposition:v:{m2}', 'attached_pic',
+        '-metadata', f'title={yt.title}',
+        '-metadata', f'artist={yt.author}',
+        '-metadata', f'comment={big_num_format(yt.views) + " views"}',
+        '-metadata', f'date={yt.publish_date}',
+        output + ".mp4",
+        '-y'
+    ]
+    subprocess.run(command)
+
+
 def download_single_stream(yt, filename, thumbnail_filename, mode):
     print(f"Fetching stream for {yt.title}")
     stream = None
@@ -76,24 +95,10 @@ def download_single_stream(yt, filename, thumbnail_filename, mode):
     default_filename = "default " + fix_filename(stream.default_filename)
     stream.download(filename=default_filename, skip_existing=True)
 
-    command = [
-        'ffmpeg',
-        '-i', default_filename,
-        '-i', thumbnail_filename,
-        '-map', '1',
-        '-map', '0',
-        '-c', 'copy',
-        '-disposition:v:0', 'attached_pic',
-        '-metadata', f'title={filename}',
-        '-metadata', f'artist={yt.author}',
-        '-metadata', f'comment={big_num_format(yt.views) + " views"}',
-        '-metadata', f'date={yt.publish_date}',
-        filename + ".mp4",
-        '-y'
-    ]
-    subprocess.run(command)
+    print(f"Adding metadata to {yt.title}")
+    convert_add_metadata(default_filename, thumbnail_filename, filename, yt)
 
-    # clean up tmp files
+    print("Removing temporary files")
     os.remove(thumbnail_filename)
     os.remove(default_filename)
 
@@ -112,58 +117,17 @@ def download_double_stream(yt, filename, thumbnail_filename, mode):
     audio_stream.download(filename=audio_default_filename, skip_existing=True)
     video_stream.download(filename=video_default_filename, skip_existing=True)
 
+    print(f"Adding metadata to {yt.title}")
     if mode == '-av':
         for suffix, stream in [(" (audio only)", audio_default_filename), (" (video only)", video_default_filename)]:
-            command = [
-                'ffmpeg',
-                '-i', stream,
-                '-i', thumbnail_filename,
-                '-map', '1',
-                '-map', '0',
-                '-c', 'copy',
-                '-disposition:v:0', 'attached_pic',
-                '-metadata', f'title={filename}',
-                '-metadata', f'artist={yt.author}',
-                '-metadata', f'comment={big_num_format(yt.views) + " views"}',
-                '-metadata', f'date={yt.publish_date}',
-                filename + suffix + ".mp4",
-                '-y'
-            ]
-            subprocess.run(command)
+            convert_add_metadata(stream, thumbnail_filename, filename + suffix, yt)
     elif mode == '-d':
-        command = [
-            'ffmpeg',
-            '-i', audio_default_filename,
-            '-i', video_default_filename,
-            '-map', '0',
-            '-map', '1',
-            '-c', 'copy',
-            '-disposition:v:1', 'attached_pic',
-            '-metadata', f'title={filename}',
-            '-metadata', f'artist={yt.author}',
-            '-metadata', f'comment={big_num_format(yt.views) + " views"}',
-            '-metadata', f'date={yt.publish_date}',
-            filename + "tmp" + ".mp4",
-            '-y'
-        ]
-        subprocess.run(command)
+        convert_add_metadata(audio_default_filename, video_default_filename, filename + "tmp", yt, m1=0, m2=1)
+        convert_add_metadata(filename + "tmp.mp4", thumbnail_filename, filename, yt)
 
-        command = [
-            'ffmpeg',
-            '-i', filename + "tmp" + ".mp4",
-            '-i', thumbnail_filename,
-            '-map', '0',
-            '-map', '1',
-            '-c', 'copy',
-            '-disposition:v:1', 'attached_pic',
-                  filename + ".mp4",
-            '-y'
-        ]
-        subprocess.run(command)
-
-        os.remove(filename + "tmp" + ".mp4")
-
-    # clean up tmp files
+    print("Removing temporary files")
     os.remove(thumbnail_filename)
     os.remove(audio_default_filename)
     os.remove(video_default_filename)
+    if mode == '-d':
+        os.remove(filename + "tmp" + ".mp4")
