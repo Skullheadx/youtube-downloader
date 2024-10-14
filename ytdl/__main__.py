@@ -1,5 +1,5 @@
 import sys
-from .funcmodule import check_playlist, get_audio_metadata_stream, download_audio_stream
+from .funcmodule import check_playlist, get_audio_metadata_stream, download_audio_stream, get_and_download
 import concurrent.futures
 
 
@@ -46,16 +46,8 @@ def main():
         # Use ThreadPoolExecutor to run downloads concurrently
         with concurrent.futures.ThreadPoolExecutor() as executor:
             # Schedule the download_audio_stream function for each audio stream
-            futures = {executor.submit(download_audio_stream, stream, metadata): stream for stream, metadata in
-                       zip(audio_streams, metadata_list)}
+            futures = {executor.submit(get_and_download, link): link for link in links}
 
-            # Optionally, you can wait for completion and handle exceptions
-            for future in concurrent.futures.as_completed(futures):
-                stream = futures[future]
-                try:
-                    future.result()  # This will raise an exception if the function raised one
-                except Exception as e:
-                    print(f"Error downloading {stream.title}: {e}")
     elif mode == "-v":
         pass
     elif mode == "-av":
