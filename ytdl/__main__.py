@@ -9,11 +9,13 @@ def main():
 
     links = []
     mode = "-d"
+    force = False
     assert len(args) > 0, "no args :("
     for arg in args:
         if arg in modes:
             mode = arg
-
+        if arg == '-f': # force
+            force = True
         if "youtube" in arg or "youtu.be" in arg:
             links.extend(arg.split(" "))
 
@@ -27,18 +29,10 @@ def main():
     links = check_playlist(links)
     assert len(links) > 0, "Should be at least one song in playlist"
 
-    if mode == "-d":
-        pass
-    elif mode == "-a":
-        # Use ThreadPoolExecutor to run downloads concurrently
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            # Schedule the download_audio_stream function for each audio stream
-            futures = {executor.submit(get_and_download, link): link for link in links}
-
-    elif mode == "-v":
-        pass
-    elif mode == "-av":
-        pass
+    # Use ThreadPoolExecutor to run downloads concurrently
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        # Schedule the download_audio_stream function for each audio stream
+        futures = {executor.submit(get_and_download, link, mode, force): link for link in links}
 
 
 if __name__ == '__main__':

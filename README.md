@@ -9,11 +9,11 @@ downloads the audio and video and stitches it together in the current directory.
 - `-a` - audio only
 - `-v` - video only
 - `-av` - audio + video separate
-
+- `-f` - force replace if file exists
 
 # TODO:
-- [ ] add video only
+- [x] add video only
 - [ ] add audio + video separate
 - [ ] add stitched together
-- [ ] add force replace
-- [ ] add album
+- [x] add force replace
+- [ ] add album name
